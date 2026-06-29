@@ -45,7 +45,7 @@ h1{font-size:22px;color:var(--slate);margin:24px 0 2px;font-weight:700}.sub{colo
 .note{font-size:12.5px;color:var(--slate);background:#fbf7ee;border:1px dashed var(--line);border-radius:6px;padding:8px 10px;line-height:1.4}
 .note b{color:var(--gold-d);text-transform:uppercase;font-size:10px;letter-spacing:.5px;display:block;margin-bottom:3px}
 .eigen label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);font-weight:700;display:block;margin-bottom:3px}
-.eigen textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:13px;font-family:inherit;resize:vertical;background:#fff}
+.eigen textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:13px;font-family:inherit;resize:vertical;background:#fff}.note-item{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;margin-bottom:4px}.note-del{border:none;background:none;color:var(--red);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}.note-add{display:flex;gap:6px;margin-top:4px}.note-in{flex:1;border:1px solid var(--line);border-radius:6px;padding:7px;font-size:13px;font-family:inherit;background:#fff}.note-btn{border:1px solid var(--gold);background:var(--gold);color:#fff;border-radius:6px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
 .links{display:flex;flex-wrap:wrap;gap:8px}
 .lnk{flex:1;min-width:104px;text-align:center;border:1px solid var(--line);background:#fff;color:var(--slate);border-radius:6px;padding:8px 6px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
 .lnk:hover{border-color:var(--gold);color:var(--gold-d)}
@@ -90,12 +90,12 @@ function loadN(){ try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e)
 function saveN(o){ localStorage.setItem(LS,JSON.stringify(o)); }
 let NOTES=loadN();
 function dateBadge(r){ var red=r.datum_ok==='nee'; if(!r._d){ if(r.datum) return '<span class="badge '+(red?'b-datered':'b-date')+'">'+esc(r.datum)+(red?' · Planning nog niet akkoord':'')+'</span>'; return '<span class="badge b-none">Geen datum</span>'; } if(red) return '<span class="badge b-datered">'+fmtD(r._d)+' · Planning nog niet akkoord</span>'; const days=Math.round((r._d-TODAY)/864e5); if(days<0)return '<span class="badge b-opgeleverd">'+fmtD(r._d)+' · '+(r.cat==='voltooid'?'Afgerond':'Project opgeleverd')+'</span>'; if(days===0)return '<span class="badge b-soon">'+fmtD(r._d)+' · vandaag</span>'; if(days<=7)return '<span class="badge b-soon">'+fmtD(r._d)+' · nog '+days+' '+(days===1?'dag':'dagen')+'</span>'; return '<span class="badge b-date">'+fmtD(r._d)+'</span>'; }
-function renderStats(){ const lop=DATA.filter(r=>r.cat==='lopend').length,vol=DATA.filter(r=>r.cat==='voltooid').length,up=DATA.filter(r=>r._d&&r._d>=TODAY).length; document.getElementById('stats').innerHTML=stat(DATA.length,'Projecten totaal')+stat(lop,'Lopend')+stat(up,'Aankomende montages')+stat(vol,'Voltooid'); }
+function renderStats(){ const lop=DATA.filter(r=>r.cat==='lopend').length,vol=DATA.filter(r=>r.cat==='voltooid').length,up=DATA.filter(r=>r._d&&r._d>=TODAY).length; document.getElementById('stats').innerHTML=(role==='montage'?stat(DATA.length,'Ingeplande montages')+stat(up,'Aankomende montages'):stat(DATA.length,'Projecten totaal')+stat(lop,'Lopend')+stat(up,'Aankomende montages')+stat(vol,'Voltooid')); }
 function stat(n,l){return '<div class="stat"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>';}
 function maps(a){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a);}
 function row(k,v){return '<div class="k">'+k+'</div><div class="v">'+v+'</div>';}
 function card(r){
-  const e=r._e,a=r._a,key='n_'+r.order+'_'+r._i,eigen=NOTES[key]||'';
+  const e=r._e,a=r._a,key='n_'+r.order+'_'+r._i,notes=(Array.isArray(NOTES[key])?NOTES[key]:(NOTES[key]?[NOTES[key]]:[]));
   const afm=(r.afmeting&&r.afmeting.trim())||e.afmeting||'';
   const adres=e.adres||''; const cn=e.contact_naam||'',ct=e.contact_tel||'',cm=e.contact_mail||'';
   const tot=(typeof r.bedrag==='number')?r.bedrag:meintentTotal(r);
@@ -120,7 +120,7 @@ function card(r){
     '<div class="kv">'+kv+'</div>'+
     (role==='beheer'?'<div class="fin"><div class="row"><span class="lbl">Totaal Meintent</span><span class="amt">'+eur(tot)+'</span></div>'+(brk?'<div class="brk">'+esc(brk)+'</div>':'')+'</div>':'')+
     '<div class="note"><b>Opmerking</b>'+(opm?esc(opm):PH)+'</div>'+
-    '<div class="eigen"><label>Extra opmerkingen</label><textarea data-k="'+key+'" rows="2" placeholder="Eigen aantekeningen\u2026">'+esc(eigen)+'</textarea></div>'+
+    '<div class="eigen"><label>Opmerkingen</label>'+notes.map((n,i)=>'<div class="note-item"><span>'+esc(n)+'</span><button class="note-del" data-k="'+key+'" data-i="'+i+'" title="Verwijderen">\u00d7</button></div>').join('')+'<div class="note-add"><input class="note-in" data-k="'+key+'" placeholder="Nieuwe opmerking\u2026"><button class="note-btn" data-k="'+key+'">Toevoegen</button></div></div>'+
     links+
   '</div>';
 }
@@ -140,5 +140,5 @@ function apply(){
 renderStats();apply();
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');filter=c.dataset.f;apply();});document.querySelectorAll('.rolebtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.rolebtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');role=b.dataset.r;apply();});
 document.getElementById('q').oninput=e=>{query=e.target.value;apply();};
-document.getElementById('grid').addEventListener('input',e=>{const t=e.target;if(!t.dataset.k)return;NOTES[t.dataset.k]=t.value;saveN(NOTES);});
+document.getElementById('grid').addEventListener('click',e=>{var t=e.target;if(t.classList.contains('note-btn')){var k=t.dataset.k,inp=t.parentNode.querySelector('.note-in'),v=(inp.value||'').trim();if(!v)return;if(!Array.isArray(NOTES[k]))NOTES[k]=NOTES[k]?[NOTES[k]]:[];NOTES[k].push(v);saveN(NOTES);apply();}else if(t.classList.contains('note-del')){var k=t.dataset.k,i=+t.dataset.i;if(Array.isArray(NOTES[k])){NOTES[k].splice(i,1);saveN(NOTES);apply();}}});
 </script><script>(function(){var H='72026b8918dfebf2cfd4cd11c15b3c1330ab404e1c3983eff8accec6e0c546bd';document.body.classList.add('locked');function chk(){var v=document.getElementById('pw').value;crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)).then(function(b){var hex=Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');if(hex===H){var g=document.getElementById('gate');if(g)g.remove();document.body.classList.remove('locked');}else{document.getElementById('pwerr').textContent='Onjuist wachtwoord';}});}document.getElementById('pwbtn').onclick=chk;document.getElementById('pw').addEventListener('keydown',function(e){if(e.key==='Enter')chk();});})();</script></body></html>
