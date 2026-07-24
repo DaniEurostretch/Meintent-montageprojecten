@@ -1,0 +1,4 @@
+# Vertelt Netlify waar de serverfuncties staan.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
