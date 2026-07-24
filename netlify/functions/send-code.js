@@ -35,7 +35,7 @@ exports.handler = async (event) => {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + process.env.RESEND_API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'Eurostretch Meintent <noreply@eurostretchtents.com>',
+        from: 'Eurostretch Meintent <onboarding@resend.dev>',
         to: [email],
         subject: 'Je inlogcode: ' + code,
         html: html
