@@ -22,11 +22,7 @@ exports.handler = async (event) => {
   if (!eq(sig2, sig))
     return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'code' }) };
 
-  // Alleen een 30-dagen-sessie teruggeven als de gebruiker 'ingelogd blijven' aanvinkte.
-  // Anders: wel binnen, maar geen sessie -> volgend bezoek opnieuw inloggen.
-  if (!remember)
-    return { statusCode: 200, body: JSON.stringify({ ok: true, email: email }) };
-
+  // Altijd een 30-dagen-sessie teruggeven, zodat je maar één keer hoeft in te loggen.
   const sexp = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 dagen
   const ssig = sign('S|' + email + '|' + portal + '|' + sexp);
   const session = b64url(email + '|' + portal + '|' + sexp + '|' + ssig);
