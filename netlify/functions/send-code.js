@@ -29,7 +29,7 @@ exports.handler = async (event) => {
   const sig  = sign(email + '|' + portal + '|' + code + '|' + exp);
   const challenge = b64url(email + '|' + portal + '|' + exp + '|' + sig);
 
-  const naam = portal === 'beheer' ? 'Beheer' : 'Montage';
+  const naam = portal === 'beheer' ? 'Beheer' : (portal === 'intern' ? 'intern' : 'Montage');
   const html =
     '<div style="font-family:Arial,sans-serif;color:#395159;font-size:15px">' +
     '<p>Inlogverzoek voor het Eurostretch ' + naam + '-portaal.</p>' +

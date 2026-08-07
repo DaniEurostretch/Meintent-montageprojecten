@@ -8,7 +8,8 @@ const crypto = require('crypto');
 // wachtwoord vóór er gemaild wordt, zodat de mailfunctie niet misbruikt kan worden.
 const PWHASH = {
   montage: "af6af118d75bf45065619eaf4b395e8a53f63bed81917144488d1c401ebb9138", // EurMei2026!
-  beheer:  "9f994ac9a4a098b06d4baada87cd2f705af6f402225a38aae9fbcba2906d7fcb"  // MeiEur2026!
+  beheer:  "9f994ac9a4a098b06d4baada87cd2f705af6f402225a38aae9fbcba2906d7fcb", // MeiEur2026!
+  intern:  "e72e3c2a09c7d4b8c99b10f668bec376354678ba2814f83fd84d57941c676056"  // Umdraaien1!
 };
 
 function sha256(s) { return crypto.createHash('sha256').update(String(s)).digest('hex'); }
