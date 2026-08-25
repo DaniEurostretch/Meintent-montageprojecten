@@ -1,0 +1,9 @@
+{
+  "name": "meintent-site-functions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Serverfuncties voor de Meintent/Eurostretch-site (inlog + foto-uploads).",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
