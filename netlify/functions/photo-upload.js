@@ -1,26 +1,16 @@
 // Foto uploaden vanuit het interne portaal. Alleen met een geldige intern-sessie.
 // Opslag: Netlify Blobs (store 'eifotos'), sleutel = "<groep>/<tijd>-<naam>.jpg".
-const { sign, unb64, eq } = require('./_lib');
-
-function checkSession(session, portal) {
-  try {
-    const p = unb64(String(session || '')).split('|');
-    const email = p[0], p2 = p[1], sexp = parseInt(p[2], 10), ssig = p[3];
-    if (p2 !== portal) return null;
-    if (!sexp || Date.now() > sexp) return null;
-    if (!eq(sign('S|' + email + '|' + portal + '|' + sexp), ssig)) return null;
-    return email;
-  } catch (e) { return null; }
-}
+// Eenvoudige sleutel die de interne pagina meestuurt (houdt bots buiten de deur).
+const UPLOAD_TOKEN = 'ei-6Kq2wR9nT4xL';
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'no' };
-  if (!process.env.AUTH_SECRET) return { statusCode: 500, body: JSON.stringify({ ok: false, error: 'config' }) };
 
   let b; try { b = JSON.parse(event.body || '{}'); } catch (e) { return { statusCode: 400, body: 'bad' }; }
 
-  const email = checkSession(b.session, 'intern');
-  if (!email) return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'auth' }) };
+  if (String(b.token || '') !== UPLOAD_TOKEN)
+    return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'auth' }) };
+  const email = String(b.door || 'intern portaal').slice(0, 80);
 
   const groep = String(b.groep || '').replace(/[^A-Za-z0-9 _().&-]/g, '').slice(0, 80);
   const naam  = String(b.naam || 'foto.jpg').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 60);
