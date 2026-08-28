@@ -15,7 +15,7 @@ export default async (req) => {
   if (String(b.token || '') !== UPLOAD_TOKEN) return json({ ok: false, error: 'auth' });
 
   const door  = String(b.door || 'intern portaal').slice(0, 80);
-  const groep = String(b.groep || '').replace(/[^A-Za-z0-9 _().&-]/g, '').slice(0, 80);
+  const groep = String(b.groep || '').replace(/[^A-Za-z0-9 _().,&'-]/g, '').slice(0, 80);
   const naam  = String(b.naam || 'foto.jpg').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 60);
   const data  = String(b.data || '');
   if (!groep) return json({ ok: false, error: 'groep' });
