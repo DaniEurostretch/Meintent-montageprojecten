@@ -1,4 +1,4 @@
-// Stap 3: controleert de code tegen de challenge en geeft bij succes een 30-dagen-sessie terug.
+// Stap 3: controleert de code tegen de challenge en geeft bij succes een sessie van een half jaar.
 const { sign, b64url, unb64, eq } = require('./_lib');
 
 exports.handler = async (event) => {
@@ -7,7 +7,7 @@ exports.handler = async (event) => {
 
   let b; try { b = JSON.parse(event.body || '{}'); } catch (e) { return { statusCode: 400, body: 'bad' }; }
   const code = String(b.code || '').trim();
-  const remember = b.remember !== false; // standaard 30 dagen; alleen uit als expliciet false
+  const remember = b.remember !== false; // standaard een half jaar; alleen uit als expliciet false
 
   let email, portal, exp, sig;
   try {
@@ -22,8 +22,8 @@ exports.handler = async (event) => {
   if (!eq(sig2, sig))
     return { statusCode: 200, body: JSON.stringify({ ok: false, error: 'code' }) };
 
-  // Altijd een 30-dagen-sessie teruggeven, zodat je maar één keer hoeft in te loggen.
-  const sexp = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 dagen
+  // Altijd een sessie van een half jaar teruggeven, zodat je maar één keer hoeft in te loggen.
+  const sexp = Date.now() + 183 * 24 * 60 * 60 * 1000; // een half jaar (183 dagen)
   const ssig = sign('S|' + email + '|' + portal + '|' + sexp);
   const session = b64url(email + '|' + portal + '|' + sexp + '|' + ssig);
 

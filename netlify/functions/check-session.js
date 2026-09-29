@@ -1,4 +1,5 @@
-// Bij elke paginaopening: is er nog een geldige 30-dagen-sessie? Zo ja -> direct binnen.
+// Bij elke paginaopening: is er nog een geldige sessie (een half jaar)? Zo ja -> direct binnen.
+// De houdbaarheid staat in de sessie zelf; die wordt bij het inloggen gezet in verify-code.js.
 const { sign, unb64, eq } = require('./_lib');
 
 exports.handler = async (event) => {
