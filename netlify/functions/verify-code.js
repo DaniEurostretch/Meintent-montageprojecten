@@ -27,5 +27,10 @@ exports.handler = async (event) => {
   const ssig = sign('S|' + email + '|' + portal + '|' + sexp);
   const session = b64url(email + '|' + portal + '|' + sexp + '|' + ssig);
 
-  return { statusCode: 200, body: JSON.stringify({ ok: true, session: session, email: email }) };
+  // Sessie OOK als cookie van de server (half jaar). Safari/iPhone wist localStorage na 7 dagen
+  // zonder bezoek; een door de server gezette cookie blijft wel staan.
+  const cookie = 'mt_s_' + portal + '=' + session + '; Max-Age=' + (183 * 24 * 60 * 60) +
+                 '; Path=/; Secure; HttpOnly; SameSite=Lax';
+  return { statusCode: 200, headers: { 'Set-Cookie': cookie },
+           body: JSON.stringify({ ok: true, session: session, email: email }) };
 };
